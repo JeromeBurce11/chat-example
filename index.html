@@ -13,7 +13,7 @@
       /* #messages li { padding: 5px 10px; } */
       #messages li:nth-child(odd) { background: #eee; }
       #messages { margin-bottom: 40px }
-      fieldset{align:center;width:350px;height:500px;background-color: deepskyblue;border-radius: 20px;}
+      /* fieldset{align:center;width:350px;height:500px;background-color: deepskyblue;border-radius: 20px;} */
     </style>
 </head>
 
@@ -25,50 +25,65 @@
   </div>
   <div id="SMS">
     <center>
-        <fieldset>
-            <ul id="messages"></ul>
-        </fieldset>
-        <form action="">
-          <input id="m" autocomplete="off" /><button>Send</button>
-        </form>
+      <fieldset>
+        <ul id="messages"></ul>
+        <div id="typing"></div>
+      </fieldset>
+      
+      <form action="">
+        <input id="m" autocomplete="off" /><button>Send</button>
+      </form>
     </center>
-    
+
   </div>
   <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
   <script>
     $("#SMS").hide();
 
-    $('#submitButton').click(function () {
-      $('#nickname').hide();
-      $("#SMS").show();
 
+    $(function () {
+      var names= $('#username').val();
+      var username = $('#username');
 
-      $(function () {
-        var username = $("#username").val();
-
-        var socket = io();
-        $('form').submit(function () {
-          socket.emit('chat message', username + ":" + $('#m').val());
-          $('#m').val('');
-          return false;
-        });
-        socket.on('chat message', function (msg) {
-
-
-         // $('#messages').append($('<li>').text(msg));
-          console.log(msg.split(":")[0])
-          if (username == msg.split(":")[0]) {
-            $('#messages').append($('<li style="margin-left:310px;margin-top:30px;">').text(msg));
-          }else{
-            $('#messages').append($('<li style="margin-right:310px;margin-top:30px;">').text(msg));
-          }
-          window.scrollTo(0, document.body.scrollHeight);
-          
-
-        });
+      var socket = io();
+      $('#submitButton').click(function () {
+        console.log(username.val());
+        $('#nickname').hide();
+        $("#SMS").show();
+        
+      })
+      $('form').submit(function () {
+        socket.emit('chat message', username.val() + ":" + $('#m').val());
+        $('#m').val('');
+        return false;
       });
-    })
+
+      $('#m').on('keypress', function () {
+        socket.emit('typing', username.val());
+      })
+
+
+      socket.on('typing', function (msg, err) {
+        console.log(err);
+        $('#typing').html(msg + " is typing a message...");
+        setTimeout(function () {
+          $("#typing").html('');
+        }, 3000);
+      })
+      
+      socket.on('chat message', function (msg) {
+        // $('#messages').append($('<li>').text(msg));
+        console.log(msg.split(":")[0])
+        if (username == msg.split(":")[0]) {
+          $('#messages').append($('<li style="float:left;margin-top:30px;"><br>').text(msg));
+        } else {
+          $('#messages').append($('<li style="float:right;margin-top:30px; "><br>').text(msg));
+        }
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+    });
+
 
   </script>
 </body>
