@@ -22,7 +22,7 @@ io.on('connection', function (socket) {
 
   socket.on('online', function (names) {
     users.push(names);
-    socket.emit("onlineUsers",users)
+    io.emit("online",users)
     console.log(users)
 
   });

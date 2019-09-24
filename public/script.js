@@ -4,6 +4,17 @@ $(function () {
     var username = $('#username');
     var users = [];
     var socket = io();
+
+    socket.on('online', function (data) {
+        alert("adfasd");
+        $('#activeUser').empty()
+        for (let i = 0; i < data.length; i++) {
+           var user = data[i];
+            $('#activeUser').append($("<li>").text(user));
+        }
+    })
+
+    
     $('#submitButton').click(function () {
         //$('#activeUser').append("<li>"+username.val());
         socket.emit('online', username.val());
@@ -34,13 +45,7 @@ $(function () {
         }, 2000);
     })
 
-    socket.on('onlineUsers', function (users) {
-        $('#activeUser').empty()
-        for (let i = 0; i < users.length; i++) {
-           var user = users[i]
-            $('#activeUser').append($("<li>").text(user));
-        }
-    })
+    
 
     socket.on('offline', function () {
 
