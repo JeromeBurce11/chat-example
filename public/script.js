@@ -2,28 +2,40 @@ $("#SMS").hide();
 $(function () {
     var names = $('#username').val();
     var username = $('#username');
-    var users = [];
+    
+    //var listOfUser = [];
     var socket = io();
 
     socket.on('online', function (data) {
-        alert("adfasd");
-        $('#activeUser').empty()
+        listOfUser = [];
+        $('.Us').remove()
         for (let i = 0; i < data.length; i++) {
-           var user = data[i];
-            $('#activeUser').append($("<li>").text(user));
+           // console.log(listOfUser)
+            if (!listOfUser.includes(data[i]) && username.val() != data[i]) {
+                listOfUser.push(data[i]);
+                var user = data[i];
+                $('#activeUser').append($("<li class='Us'>").text(user));
+            }
         }
+        console.log(listOfUser)
     })
 
-    
+    socket.on("already_used", function(data){
+        alert(data);
+    })
+
+
     $('#submitButton').click(function () {
         //$('#activeUser').append("<li>"+username.val());
+        $("#title").text(username.val());
         socket.emit('online', username.val());
-        console.log(username.val());
+       // console.log(username.val());
         $('#userinterface').hide();
         $("#SMS").show();
-        $('#disconnect').click(function () {
-
-        })
+        $("#disconnect").click(function () {
+            socket.emit('disconnect', username.val());
+            location.reload();
+          })
 
     })
     $('form').submit(function () {
@@ -38,14 +50,14 @@ $(function () {
 
 
     socket.on('typing', function (msg, err) {
-        console.log(err);
+      //  console.log(err);
         $('#typing').html(msg + " is typing a message...");
         setTimeout(function () {
             $("#typing").html('');
         }, 2000);
     })
 
-    
+
 
     socket.on('offline', function () {
 

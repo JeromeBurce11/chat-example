@@ -21,11 +21,19 @@ io.on('connection', function (socket) {
   })
 
   socket.on('online', function (names) {
-    users.push(names);
-    io.emit("online",users)
-    console.log(users)
-
+    if (!users.includes(names)) {
+      users.push(names);
+      io.emit("online", users)
+     // console.log(users)
+    } else {
+      io.emit("already_used", names+" already used");
+    }
   });
+  socket.on('disconnect',function(data){
+    var i = users.indexOf(data);
+    users.splice(i,1);
+    io.emit('online',users);
+ })
 });
 app.use(express.static('public'));
 
